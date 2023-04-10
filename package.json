@@ -1,6 +1,6 @@
 {
   "name": "KandinskyApiNodeWrap",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Stepan Zadolia <mrz@mrzlab630.pw>",
   "repository": "git@bitbucket.org:mrzlab630pw/KandinskyApiNodeWrap.git",
   "main": "index.js",

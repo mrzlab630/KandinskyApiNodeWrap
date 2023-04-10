@@ -23,12 +23,17 @@ class KandinskyApiNodeWrap {
     private routStatus:string
     private routResult:string
     private requestDelay:number
+    private timeout:number
     private userAgent: string
     private origin:string
+    private debug?:boolean
 
 
-    constructor(){
-        this.requestDelay = 30000
+
+    constructor(debug?:boolean){
+        this.debug = debug
+        this.requestDelay = 3000
+        this.timeout = 600000 //10 min
         this.apiUrl = 'https://fusionbrain.ai/api/v1/text2image/'
         this.routRequest = 'generate/pockets/'
         this.routRun = 'run'
@@ -150,7 +155,13 @@ class KandinskyApiNodeWrap {
                 }
             )
 
-            return await fetchPrediction.json() as any
+            const result:any = await fetchPrediction.json()
+
+            if(this.debug){
+                console.log(result)
+            }
+
+            return result
 
         }catch (e) {
             return {
@@ -163,6 +174,10 @@ class KandinskyApiNodeWrap {
 
     public async getStatus(pocketId:string):Promise<{result?:string,success:boolean,error?:string}> {
         try {
+            if(this.debug){
+                console.log('getStatus')
+            }
+
             return await this.getRequest({pocketId, rout:this.routStatus})
         }catch (e) {
             return {
@@ -178,16 +193,27 @@ class KandinskyApiNodeWrap {
                 throw new Error('pocketId is empty')
             }
 
+            const startTime = Date.now()
+
             const {result:status,error} = await this.getStatus(pocketId)
 
             if(error || !status){
                 throw new Error(error || 'unknown error')
             }
 
+            if(this.debug){
+                console.log(status)
+            }
+
             switch (status.toLowerCase()) {
 
                 case 'initial':
                 case 'processing':
+
+                    if(Date.now() - startTime > this.timeout){
+                        throw new Error(error || 'timeout')
+                    }
+
                     await new Promise(resolve => setTimeout(resolve, this.requestDelay))
                     return this.statusCheck(pocketId)
 
@@ -201,6 +227,10 @@ class KandinskyApiNodeWrap {
     }
     public async getResult(pocketId:string):Promise<{result?:string,success:boolean,error?:string}> {
         try {
+            if(this.debug){
+                console.log('getResult')
+            }
+
             return await this.getRequest({pocketId, rout:this.routResult})
         }catch (e) {
             return {
