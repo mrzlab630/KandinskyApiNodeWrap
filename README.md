@@ -29,6 +29,6 @@ import KandinskyApiNodeWrap, {TKandinskyApiNodeWrapStyle} from "./KandinskyApiNo
         
         const prompt = 'green cat'
         const style:TKandinskyApiNodeWrapStyle = 'cartoon'
-        const r = kAgent.generate(prompt,'cartoon')
+        const r = await kAgent.generate(prompt,'cartoon')
 
 ```
